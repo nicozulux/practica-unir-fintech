@@ -1,0 +1,42 @@
+version: '3.8'
+
+services:
+  mongo:
+    image: mongo:latest
+    container_name: mongodb_fintech
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+    networks:
+      - fintech-net
+
+  backend:
+    build: ./backend
+    container_name: fintech_backend
+    ports:
+      - "5000:5000"
+    environment:
+      - PORT=5000
+      - MONGO_URI=mongodb://mongo:27017/mern_expenses
+    depends_on:
+      - mongo
+    networks:
+      - fintech-net
+
+  frontend:
+    build: ./frontend
+    container_name: fintech_frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    networks:
+      - fintech-net
+
+volumes:
+  mongo_data:
+
+networks:
+  fintech-net:
+    driver: bridge
